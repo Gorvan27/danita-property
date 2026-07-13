@@ -163,7 +163,7 @@ main{padding-top:6px}
     <option value="5000000"></option><option value="8000000"></option><option value="15000000"></option>
   </select>
   <select id="sort">
-    <option value="price_asc"></option><option value="price_desc"></option>
+    <option value="price_desc"></option><option value="price_asc"></option>
   </select>
   <div class="count" id="count"></div>
   <div class="tools">
@@ -266,7 +266,7 @@ const I18N = {
 const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},
           set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 let lang = LS.get('lang') || 'en';
-let sortMode = LS.get('sort') || 'price_asc';
+let sortMode = LS.get('sort') || 'price_desc';
 function T(k){return (I18N[lang]&&I18N[lang][k]!=null)?I18N[lang][k]:(I18N.en[k]!=null?I18N.en[k]:k);}
 const fmt = n => (n||n===0) ? n.toLocaleString('en-US').replace(/,/g,' ') : '—';
 // валюта (курсы приблизительные, для ориентира)
@@ -359,7 +359,7 @@ function fillStatic(){
   bsel[0].textContent=T('any_price');
   ['2M','3M','5M','8M','15M'].forEach((s,i)=>bsel[i+1].textContent=T('upto')+' '+s+' ฿');
   const ssel=document.getElementById('sort').options;
-  ssel[0].textContent=T('sort_asc');ssel[1].textContent=T('sort_desc');
+  ssel[0].textContent=T('sort_desc');ssel[1].textContent=T('sort_asc');
   const vb=document.querySelectorAll('#view button');
   vb[0].textContent=T('view_grid');vb[1].textContent=T('view_row');vb[2].textContent=T('view_map');
 }
