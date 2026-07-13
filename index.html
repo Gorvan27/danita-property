@@ -119,10 +119,12 @@ main{padding-top:6px}
 .filters.as-drawer::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);width:46px;height:5px;border-radius:3px;background:var(--muted);opacity:.55}
 .menu-btn{align-items:center;justify-content:center;position:fixed;top:12px;right:12px;z-index:46;width:48px;height:48px;border-radius:14px;background:var(--acc);color:#fff;border:none;box-shadow:0 6px 18px rgba(0,0,0,.4);font-size:22px;line-height:1;cursor:pointer}
 .menu-backdrop.on{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:44}
+.filters.as-drawer .drawer-close{display:block;width:100%;margin-top:8px;padding:13px;border:none;border-radius:12px;background:var(--acc);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
 }
 @keyframes slideDown{from{transform:translateY(-16px);opacity:.3}to{transform:translateY(0);opacity:1}}
 .menu-btn{display:none}
 .menu-backdrop{display:none}
+.drawer-close{display:none}
 </style>
 </head>
 <body>
@@ -178,6 +180,7 @@ main{padding-top:6px}
       <option value="ja">🇯🇵 日本語</option>
     </select>
   </div>
+  <button class="drawer-close" id="drawerClose">Close</button>
 </div>
 
 <main id="grid" class="grid"></main>
@@ -500,16 +503,20 @@ if(location.hash.length>1){const ref=decodeURIComponent(location.hash.slice(1));
   if(!bar||!btn||!bg) return;
   const mobile=()=>matchMedia('(max-width:640px)').matches;
   const isOpen=()=>bar.classList.contains('as-drawer');
-  function open(){bar.classList.add('as-drawer');bg.classList.add('on');btn.textContent='✕';btn.style.display='flex';}
-  function close(){bar.classList.remove('as-drawer');bg.classList.remove('on');btn.textContent='☰';syncBtn();}
-  function toggle(){isOpen()?close():open();}
+  const dc=document.getElementById('drawerClose');
+  const CLOSE={en:'Close',ru:'Закрыть',zh:'关闭',th:'ปิด',ja:'閉じる'};
+  function lbl(){if(dc)dc.textContent=CLOSE[document.getElementById('lang').value]||'Close';}
+  function open(){bar.classList.add('as-drawer');bg.classList.add('on');btn.style.display='none';bar.scrollTop=0;}
+  function close(){bar.classList.remove('as-drawer');bg.classList.remove('on');syncBtn();}
   function syncBtn(){
-    if(!mobile()){btn.style.display='none';return;}
-    if(isOpen()){btn.style.display='flex';return;}
+    if(!mobile()||isOpen()){btn.style.display='none';return;}
     const past=window.scrollY>(bar.offsetTop+bar.offsetHeight-4);
     btn.style.display=past?'flex':'none';
   }
-  btn.addEventListener('click',toggle);
+  lbl();
+  btn.addEventListener('click',open);
+  if(dc) dc.addEventListener('click',close);
+  document.getElementById('lang').addEventListener('change',lbl);
   bg.addEventListener('click',close);
   // выбрал фильтр — закрыть; тап по любой ссылке/карточке — тоже
   bar.addEventListener('change',()=>{if(mobile()&&isOpen())close();});
