@@ -115,8 +115,9 @@ footer .social{margin:12px 0}
 .zoom{display:none}
 .tools{gap:10px}
 main{padding-top:6px}
-.filters.as-drawer{position:fixed;top:0;left:0;right:0;z-index:45;max-height:90vh;overflow:auto;box-shadow:0 12px 34px rgba(0,0,0,.45);animation:slideDown .25s ease}
-.menu-btn{align-items:center;justify-content:center;position:fixed;top:12px;right:12px;z-index:46;width:48px;height:48px;border-radius:14px;background:var(--acc);color:#fff;border:none;box-shadow:0 6px 18px rgba(0,0,0,.4);font-size:20px;cursor:pointer}
+.filters.as-drawer{position:fixed;top:0;left:0;right:0;z-index:45;max-height:92vh;overflow:auto;background:var(--bg);box-shadow:0 14px 40px rgba(0,0,0,.5);border-radius:0 0 20px 20px;padding-top:28px;animation:slideDown .25s ease}
+.filters.as-drawer::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);width:46px;height:5px;border-radius:3px;background:var(--muted);opacity:.55}
+.menu-btn{align-items:center;justify-content:center;position:fixed;top:12px;right:12px;z-index:46;width:48px;height:48px;border-radius:14px;background:var(--acc);color:#fff;border:none;box-shadow:0 6px 18px rgba(0,0,0,.4);font-size:22px;line-height:1;cursor:pointer}
 .menu-backdrop.on{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:44}
 }
 @keyframes slideDown{from{transform:translateY(-16px);opacity:.3}to{transform:translateY(0);opacity:1}}
@@ -498,18 +499,32 @@ if(location.hash.length>1){const ref=decodeURIComponent(location.hash.slice(1));
   const bg=document.getElementById('menuBackdrop');
   if(!bar||!btn||!bg) return;
   const mobile=()=>matchMedia('(max-width:640px)').matches;
-  function open(){bar.classList.add('as-drawer');bg.classList.add('on');btn.style.display='none';}
-  function close(){bar.classList.remove('as-drawer');bg.classList.remove('on');syncBtn();}
+  const isOpen=()=>bar.classList.contains('as-drawer');
+  function open(){bar.classList.add('as-drawer');bg.classList.add('on');btn.textContent='✕';btn.style.display='flex';}
+  function close(){bar.classList.remove('as-drawer');bg.classList.remove('on');btn.textContent='☰';syncBtn();}
+  function toggle(){isOpen()?close():open();}
   function syncBtn(){
-    if(!mobile()||bar.classList.contains('as-drawer')){btn.style.display='none';return;}
+    if(!mobile()){btn.style.display='none';return;}
+    if(isOpen()){btn.style.display='flex';return;}
     const past=window.scrollY>(bar.offsetTop+bar.offsetHeight-4);
     btn.style.display=past?'flex':'none';
   }
-  btn.addEventListener('click',open);
+  btn.addEventListener('click',toggle);
   bg.addEventListener('click',close);
-  bar.addEventListener('change',()=>{if(mobile()&&bar.classList.contains('as-drawer'))close();});
+  // выбрал фильтр — закрыть; тап по любой ссылке/карточке — тоже
+  bar.addEventListener('change',()=>{if(mobile()&&isOpen())close();});
   window.addEventListener('scroll',syncBtn,{passive:true});
   window.addEventListener('resize',syncBtn);
+  // свайп вверх по шторке — закрыть
+  let sy=null;
+  bar.addEventListener('touchstart',e=>{sy=e.touches[0].clientY;},{passive:true});
+  bar.addEventListener('touchmove',e=>{
+    if(sy===null||!isOpen())return;
+    if(sy-e.touches[0].clientY>40){close();sy=null;}
+  },{passive:true});
+  bar.addEventListener('touchend',()=>{sy=null;});
+  // Esc — закрыть (десктоп/клавиатура)
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&isOpen())close();});
   syncBtn();
 })();
 </script>
